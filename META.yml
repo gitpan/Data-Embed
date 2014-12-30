@@ -1,0 +1,21 @@
+---
+abstract: 'embed arbitrary data in a file'
+author:
+  - 'Flavio Poletti <polettix@cpan.org>'
+build_requires:
+  Test::Exception: '0.032'
+  Test::More: '1.001008'
+configure_requires:
+  ExtUtils::MakeMaker: '6.30'
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 5.006, CPAN::Meta::Converter version 2.120921'
+license: artistic_2
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Data-Embed
+requires:
+  IO::Slice: '0.001'
+  Log::Log4perl::Tiny: 1.002_004
+  perl: 5.008_000
+version: 0.1_01

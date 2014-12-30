@@ -1,0 +1,17 @@
+Changes
+LICENSE
+MANIFEST
+META.yml
+Makefile.PL
+README
+lib/Data/Embed.pm
+lib/Data/Embed/File.pm
+lib/Data/Embed/Reader.pm
+lib/Data/Embed/Util.pm
+lib/Data/Embed/Writer.pm
+t/00-load.t
+t/01-basic.t
+t/01-basic.t.test1
+t/DataEmbedTestUtil.pm
+t/pod-coverage.t
+t/pod.t

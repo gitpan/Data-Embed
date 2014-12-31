@@ -1,6 +1,6 @@
 package Data::Embed::File;
 {
-  $Data::Embed::File::VERSION = '0.1_01';
+  $Data::Embed::File::VERSION = '0.1_02';
 }
 
 # ABSTRACT: embed arbitrary data in a file
@@ -49,6 +49,9 @@ sub contents {
    return $retval;
 } ## end sub contents
 
+
+sub name { return shift->{name}; }
+
 1;
 
 __END__
@@ -63,7 +66,7 @@ Data::Embed::File - embed arbitrary data in a file
 
 =head1 VERSION
 
-version 0.1_01
+version 0.1_02
 
 =head1 DESCRIPTION
 
@@ -116,6 +119,11 @@ Convenience method to slurp the whole contents of the embedded file
 in one single shot. It always provides the full contents, independently
 of whether data had been read before, although it restores the filehandle
 to the previous position.
+
+=head2 B<< name >>
+
+Get the name associated to the file, whatever it is. L<Data::Embed::Reader>
+sets it from what is read in the index file
 
 =head1 AUTHOR
 

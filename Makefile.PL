@@ -16,7 +16,9 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "Data-Embed",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "bin/data-embed"
+  ],
   "LICENSE" => "artistic_2",
   "NAME" => "Data::Embed",
   "PREREQ_PM" => {
@@ -27,7 +29,7 @@ my %WriteMakefileArgs = (
     "Test::Exception" => "0.032",
     "Test::More" => "1.001008"
   },
-  "VERSION" => "0.1_01",
+  "VERSION" => "0.1_02",
   "test" => {
     "TESTS" => "t/*.t"
   }

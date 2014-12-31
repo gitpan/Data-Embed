@@ -1,6 +1,6 @@
 package Data::Embed::Writer;
 {
-  $Data::Embed::Writer::VERSION = '0.1_01';
+  $Data::Embed::Writer::VERSION = '0.1_02';
 }
 
 # ABSTRACT: embed arbitrary data in a file - writer class
@@ -68,8 +68,14 @@ sub add_file {
    my $print_name =
      (ref($filename) eq 'SCALAR') ? 'internal data' : $filename;
    DEBUG "add_file(): $name => $filename";
-   open my $fh, '<:raw', $filename
+
+   # To make it work with references to scalars in perl pre-5.14
+   # we split open() and binmode()
+   open my $fh, '<', $filename
      or LOGCROAK "open('$print_name'): $OS_ERROR";
+   binmode $fh
+     or LOGCROAK "binmode('$print_name') failed";
+
    return $self->add_fh($name, $fh);
 } ## end sub add_file
 
@@ -139,7 +145,7 @@ Data::Embed::Writer - embed arbitrary data in a file - writer class
 
 =head1 VERSION
 
-version 0.1_01
+version 0.1_02
 
 =head1 METHODS
 

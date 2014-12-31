@@ -1,6 +1,6 @@
 package Data::Embed::Util;
 {
-  $Data::Embed::Util::VERSION = '0.1_01';
+  $Data::Embed::Util::VERSION = '0.1_02';
 }
 
 # ABSTRACT: embed arbitrary data in a file - utilities
@@ -50,7 +50,7 @@ Data::Embed::Util - embed arbitrary data in a file - utilities
 
 =head1 VERSION
 
-version 0.1_01
+version 0.1_02
 
 =head1 DESCRIPTION
 

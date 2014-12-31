@@ -4,6 +4,7 @@ MANIFEST
 META.yml
 Makefile.PL
 README
+bin/data-embed
 lib/Data/Embed.pm
 lib/Data/Embed/File.pm
 lib/Data/Embed/Reader.pm

@@ -1,6 +1,6 @@
 package Data::Embed::Writer;
 {
-  $Data::Embed::Writer::VERSION = '0.1_02';
+  $Data::Embed::Writer::VERSION = '0.1';
 }
 
 # ABSTRACT: embed arbitrary data in a file - writer class
@@ -145,7 +145,7 @@ Data::Embed::Writer - embed arbitrary data in a file - writer class
 
 =head1 VERSION
 
-version 0.1_02
+version 0.1
 
 =head1 METHODS
 

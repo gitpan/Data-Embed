@@ -1,6 +1,6 @@
 package Data::Embed::File;
 {
-  $Data::Embed::File::VERSION = '0.1_02';
+  $Data::Embed::File::VERSION = '0.1';
 }
 
 # ABSTRACT: embed arbitrary data in a file
@@ -66,7 +66,7 @@ Data::Embed::File - embed arbitrary data in a file
 
 =head1 VERSION
 
-version 0.1_02
+version 0.1
 
 =head1 DESCRIPTION
 

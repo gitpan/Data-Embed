@@ -1,6 +1,6 @@
 package Data::Embed::Reader;
 {
-  $Data::Embed::Reader::VERSION = '0.1_02';
+  $Data::Embed::Reader::VERSION = '0.1';
 }
 
 # ABSTRACT: embed arbitrary data in a file - reader class
@@ -254,7 +254,7 @@ Data::Embed::Reader - embed arbitrary data in a file - reader class
 
 =head1 VERSION
 
-version 0.1_02
+version 0.1
 
 =head1 METHODS
 

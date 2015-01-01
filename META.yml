@@ -18,4 +18,4 @@ requires:
   IO::Slice: '0.001'
   Log::Log4perl::Tiny: 1.002_004
   perl: 5.008_000
-version: 0.1_02
+version: '0.1'

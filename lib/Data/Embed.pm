@@ -1,6 +1,6 @@
 package Data::Embed;
 {
-  $Data::Embed::VERSION = '0.1';
+  $Data::Embed::VERSION = '0.2_01';
 }
 
 # ABSTRACT: embed arbitrary data in a file
@@ -11,12 +11,12 @@ use English qw< -no_match_vars >;
 use Exporter qw< import >;
 use Log::Log4perl::Tiny qw< :easy :dead_if_first >;
 
-our @EXPORT_OK = qw< writer reader embed embedded >;
+our @EXPORT_OK = qw< writer reader embed embedded generate_module_from_file >;
 our @EXPORT = ();
 our %EXPORT_TAGS = (
    all => \@EXPORT_OK,
    reading => [ qw< reader embedded > ],
-   writing => [ qw< writer embed    > ],
+   writing => [ qw< writer embed    generate_module_from_file > ],
 );
 
 
@@ -42,6 +42,11 @@ sub embedded {
    return $reader->files();
 }
 
+sub generate_module_from_file {
+   require Data::Embed::OneFileAsModule;
+   goto &Data::Embed::OneFileAsModule::generate_module_from_file;
+}
+
 1;
 
 __END__
@@ -56,7 +61,7 @@ Data::Embed - embed arbitrary data in a file
 
 =head1 VERSION
 
-version 0.1
+version 0.2_01
 
 =head1 SYNOPSIS
 
@@ -205,6 +210,82 @@ L<Data::Embed::Writer>.
 This is a convenience wrapper around the constructor for
 L<Data::Embed::Reader>.
 
+=head2 B<< generate_module_from_file >>
+
+   # when %args includes details for an output channel
+   generate_module_from_file(%args);
+
+   # in case no output is provided in %args:
+   my $text = generate_module_from_file(%args);
+
+Generate a module's file contents from a file. The module contains code
+of a package that has code to read the included data. Arguments are:
+
+=over
+
+=item package
+
+the name of the package that will be put into the module. This
+is a mandatory parameter.
+
+=item output
+
+the output channel. If not present, the output will be provided as
+a string returned by the function, otherwise you can provide
+
+=over
+
+=item *
+
+a filehandle where the output will be printed
+
+=item *
+
+a reference to a scalar (it will be filled with the contents)
+
+=item *
+
+the C<-> string, in which case the output will be printed
+to STDOUT
+
+=item *
+
+a filename
+
+=back
+
+=item output_from_package
+
+if this key is present and true, the C<output> parameters is
+overridden and generated automatically from the package name
+provided in key C<package>. The generated file will assume that
+the file is contained in the I<normal> path under a C<lib>
+directory, e.g. if the package name is C<Some::Module> then
+the generated filename will be C<lib/Some/Module.pm>.
+
+=item fh
+
+a filehandle where data will be read from
+
+=item filename
+
+the input will be taken from the provided filename
+
+=item dataref
+
+the input will be taken from the scalar pointed by the
+reference
+
+=item data
+
+the input is taken from the scalar provided with the data key
+
+=back
+
+Input keys are C<fh>, C<filename>, C<dataref> and C<data>. In case
+multiple of them are present, they will be considered in the
+order specified.
+
 =head1 SEE ALSO
 
 L<Data::Section> covers a somehow similar need but differently. In
@@ -218,7 +299,7 @@ Flavio Poletti <polettix@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2014 by Flavio Poletti <polettix@cpan.org>
+Copyright (C) 2014-2015 by Flavio Poletti <polettix@cpan.org>
 
 This module is free software.  You can redistribute it and/or
 modify it under the terms of the Artistic License 2.0.

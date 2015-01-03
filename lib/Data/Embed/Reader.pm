@@ -1,6 +1,6 @@
 package Data::Embed::Reader;
 {
-  $Data::Embed::Reader::VERSION = '0.1';
+  $Data::Embed::Reader::VERSION = '0.2_01';
 }
 
 # ABSTRACT: embed arbitrary data in a file - reader class
@@ -254,7 +254,7 @@ Data::Embed::Reader - embed arbitrary data in a file - reader class
 
 =head1 VERSION
 
-version 0.1
+version 0.2_01
 
 =head1 METHODS
 
@@ -292,7 +292,7 @@ Flavio Poletti <polettix@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2014 by Flavio Poletti <polettix@cpan.org>
+Copyright (C) 2014-2015 by Flavio Poletti <polettix@cpan.org>
 
 This module is free software.  You can redistribute it and/or
 modify it under the terms of the Artistic License 2.0.

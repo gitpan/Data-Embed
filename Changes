@@ -1,3 +1,7 @@
+0.2_01    2015-01-03 16:41:07 Europe/Rome
+   - added package for embedding one file in a Perl module
+   - added sub-command in data-embed for feature above
+
 0.1       2015-01-01 09:37:16 Europe/Rome
    - release after 71 passes on CPAN Testers (thanks!)
 

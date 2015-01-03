@@ -19,6 +19,9 @@ GetOptions(
      usage! help! man! version!
      data|text|d=s
      file|filename|f=s
+     output|o=s
+     output_from_package|output-from-package|auto-output|a!
+     package|module|p|m=s
      name|n=s
      output|o=s
      >
@@ -146,6 +149,36 @@ sub action_extract {
    return;
 }
 
+sub action_modularize {
+   my ($cfg, $argv) = @_;
+
+   defined(my $package = $cfg->{package})
+      or pod2usage(
+         message   => "action modularize requires package name",
+         -verbose  => 99,
+         -sections => 'USAGE',
+      );
+   my %output = exists $cfg->{output} ? (output => $cfg->{output}) : ();
+   $output{output_from_package} = $cfg->{output_from_package};
+
+   my %input;
+   if (exists $cfg->{data}) {
+      $input{data} = $cfg->{data};
+   }
+   elsif (exists $cfg->{file}) {
+      $input{filename} = $cfg->{file};
+   }
+   elsif ((! scalar @$argv) || ($argv->[0] eq '-')) {
+      $input{fh} = \*STDIN;
+      binmode $input{fh};
+   }
+   else {
+      $input{filename} = $argv->[0];
+   }
+
+   return generate_module_from_file(package => $package, %input, %output);
+}
+
 __END__
 
 =pod
@@ -158,7 +191,7 @@ data-embed - embed/extract files to/from container files
 
 =head1 VERSION
 
-version 0.1
+version 0.2_01
 
 =head1 DESCRIPTION
 
@@ -352,7 +385,7 @@ Flavio Poletti <polettix@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2014 by Flavio Poletti <polettix@cpan.org>
+Copyright (C) 2014-2015 by Flavio Poletti <polettix@cpan.org>
 
 This module is free software.  You can redistribute it and/or
 modify it under the terms of the Artistic License 2.0.

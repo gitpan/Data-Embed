@@ -1,3 +1,8 @@
+0.2_03    2015-01-06 07:32:02 Europe/Rome
+   - fixed test t/10-writer-add.t for openining a handle to a scalar
+     ref in perl prior to 5.14 (no ':raw' allowed, using binmode()
+     just after)
+
 0.2_02    2015-01-06 01:38:39 Europe/Rome
    - new D::E::Writer and writer() implementation (sanitized)
    - added documentation for data-embed script

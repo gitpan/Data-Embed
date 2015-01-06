@@ -1,4 +1,4 @@
-use Test::More  tests => 45
+use Test::More  tests => 46
 ;
 use Test::Exception;
 
@@ -106,7 +106,8 @@ my $testfile2 = __FILE__ . '.test-sample2';
 
 {
    my $generated = '';
-   ok(open(local(*STDIN), '<:raw', \$sample1), 'localized open() for STDIN to scalar ref');
+   ok(open(local(*STDIN), '<', \$sample1), 'localized open() for STDIN to scalar ref');
+   ok(binmode(STDIN), 'binmode STDIN');
 
    my $writer;
    lives_ok {

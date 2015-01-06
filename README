@@ -2,7 +2,7 @@ NAME
     Data::Embed - embed arbitrary data in a file
 
 VERSION
-    version 0.2_02
+    version 0.2_03
 
 SYNOPSIS
        use Data::Embed qw< embed embedded >;

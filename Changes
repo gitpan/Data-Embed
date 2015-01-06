@@ -1,3 +1,8 @@
+0.2_02    2015-01-06 01:38:39 Europe/Rome
+   - new D::E::Writer and writer() implementation (sanitized)
+   - added documentation for data-embed script
+   - documentation bugfixes
+
 0.2_01    2015-01-03 16:41:07 Europe/Rome
    - added package for embedding one file in a Perl module
    - added sub-command in data-embed for feature above

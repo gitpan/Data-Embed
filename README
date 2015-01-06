@@ -2,7 +2,7 @@ NAME
     Data::Embed - embed arbitrary data in a file
 
 VERSION
-    version 0.2_01
+    version 0.2_02
 
 SYNOPSIS
        use Data::Embed qw< embed embedded >;
@@ -77,17 +77,52 @@ DESCRIPTION
 
 FUNCTIONS
   embed
-    Embed new data inside a container file. The calling syntax is as
-    follows:
+       embed($hashref); # OR
+       embed(%keyvalue_pairs);
 
-       embed($container, $hashref); # OR
-       embed($container, %keyvalue_pairs);
+    Embed new data inside a container file.
 
-    The $container parameter is the target file where the new data will be
-    inserted.
+    Parameters can be passed as key-value pairs either directly or through a
+    hash reference. The following keys are supported:
 
-    Additional parameters can be passed as key-value pairs either directly
-    or through a hash reference. The following keys are supported:
+    "container"
+        shortcut to specifying the same input and output, i.e. the value
+        will be replicated both on the "input" and "output" keys below.
+        Caller still has to ensure that the two are compatible. Provision of
+        a filehandle is currently not supported.
+
+    "input"
+        any previous container file to use as base for the generated
+        container. If missing, no previous data will be considered (like
+        starting from an empty file). Can be:
+
+        *   the "-" string in a plain scalar, in which case standard input
+            is considered
+
+        *   any other string in a plain scalar, considered to be a file name
+
+        *   a plain reference to a scalar, considered to hold the input data
+
+        *   something that supports the filehandle interface for reading
+
+    "output"
+        the target container for the newly generated archive. Might be the
+        same as the input or different; in the latter case, the input will
+        be copied over the output, apart from the bits regarding the
+        management of the inclusions. Can be:
+
+        *   missing/undefined or the "-" string in a plain scalar, in which
+            case standard output is used
+
+        *   any other string in a plain scalar, considered to be a file name
+
+        *   a plain reference to a scalar, considered to be the target
+            scalar to hold the data
+
+        *   something that supports the filehandle interface for printing.
+            You should not provide the same filehandle for both input and
+            output, even if you opened it in read-write mode. This
+            limitation might be removed in the future.
 
     "name"
         the name to associate to the section, optionally. If missing it will
@@ -100,7 +135,7 @@ FUNCTIONS
     "filename"
         a filename or a reference to a scalar where data will be read from
 
-    c<data>
+    "data"
         a scalar from where data will be read. If you have a huge amount of
         data, it's better to use the "filename" key above passing a
         reference to the scalar holding the data.
@@ -183,6 +218,12 @@ FUNCTIONS
 
     Input keys are "fh", "filename", "dataref" and "data". In case multiple
     of them are present, they will be considered in the order specified.
+
+BUGS AND LIMITATIONS
+    Report bugs either through RT or GitHub (patches welcome).
+
+    Passing the same filehandle for both "input" and "output" in "embed" is
+    not supported. This applies to "container" too.
 
 SEE ALSO
     Data::Section covers a somehow similar need but differently. In

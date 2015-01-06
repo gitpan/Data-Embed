@@ -1,0 +1,144 @@
+NAME
+====
+
+Data::Embed - embed arbitrary data in a file
+
+SYNOPSYS
+========
+
+    use Data::Embed qw< embed embedded >;
+
+    # this is the file where thing will be embedded, at the end
+    my $container = '/path/to/some/file';
+
+    # first of all we embed an external file
+    my $datafile  = '/path/to/data.tar.gz';
+    embed($container, name => 'data.tar.gz', filename => $datafile);
+
+    # we can also embed some data, directly
+    use Data::Dumper;
+    my $conf = { ... };
+    embed($container, name => 'config.yml', data => Dumper($conf));
+
+    # if the data is in a scalar but it's huge, use filename and
+    # pass a reference to the scalar so no copy will happen
+    my $huge_png = ...;
+    embed($container, name => 'image.png', filename => \$huge_png);
+
+    # to retrieve the stuff, use embedded()
+    my @files = embedded($container);
+
+    # each item in @files is a Data::Embed::File object
+
+    # get whole contents of file
+    my $config_text = $files[1]->contents();
+
+    # otherwise, you can get a filehandle and use it, e.g. to
+    # dump it on standard output
+    my $data_fh = $files[0]->fh();
+    binmode STDOUT;
+    print {*STDOUT} <$data_fh>;
+
+    # or save the file back, using the available name
+    open my $ofh, '>:raw', $file[2]->name(); # well, do your checks!
+    my $ifh = $files[2]->fh();
+    while (! eof $ifh) {
+       read $ifh, my $buffer, 4096
+          or last; # do proper checks in production!
+       print {$ofh} $buffer;
+    }
+
+
+ALL THE REST
+============
+
+Want to know more? [See the module's documentation](https://metacpan.org/pod/Data::Embed) to figure out
+all the bells and whistles of this module!
+
+Want to install the latest release? [Go fetch it on CPAN](https://metacpan.org/release/Data-Embed).
+
+Want to contribute? [Fork it on GitHub](https://github.com/polettix/Data-Embed).
+
+That's all folks!
+
+
+
+name     = Data-Embed
+abstract = embed arbitrary data in a file
+author   = Flavio Poletti <polettix@cpan.org>
+license  = Custom
+copyright_holder = Flavio Poletti
+
+[Git::Check]
+[Git::Commit]
+[Git::Tag]
+[Git::NextVersion]
+first_version = 0.1
+version_regexp  = ^v(.+)$
+
+[@Basic]
+
+[ReadmeFromPod]
+[PkgVersion]
+[PodWeaver]
+
+[CustomLicense]
+filename = LEGAL
+
+[PruneFiles]
+filename = LEGAL
+filename = dist.ini
+filename = README.md
+
+[NextRelease]
+
+[Prereqs]
+perl = 5.008_000
+Log::Log4perl::Tiny = 1.002_004
+IO::Slice = 0.001
+
+[Prereqs / TestRequires]
+Test::Exception = 0.032
+Test::More = 1.001008
+
+
+{{$NEXT}}
+   - added documentation for data-embed script
+   - documentation bugfixes
+
+0.2_01    2015-01-03 16:41:07 Europe/Rome
+   - added package for embedding one file in a Perl module
+   - added sub-command in data-embed for feature above
+
+0.1       2015-01-01 09:37:16 Europe/Rome
+   - release after 71 passes on CPAN Testers (thanks!)
+
+0.1_02    2014-12-31 14:09:57 Europe/Rome
+   - workaround for perl bug in open() prior to version 5.14
+   - added name() method to Data::Embed::File
+   - added script for embedding/listing/extracting from container files
+
+0.1_01    2014-12-30 17:47:32 Europe/Rome
+   - developer release to see what CPAN Testers say
+
+
+ever
+
+evereverever
+
+evereverever
+
+whatevereverever
+
+evereverever
+
+Data::Embed/index/begin
+1845 README.md
+589 dist.ini
+657 Changes
+4 what
+12 x
+12 whatxx
+16 
+12 what%3aever
+Data::Embed/index/end

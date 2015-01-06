@@ -1,6 +1,6 @@
 package Data::Embed::Reader;
 {
-  $Data::Embed::Reader::VERSION = '0.2_01';
+  $Data::Embed::Reader::VERSION = '0.2_02';
 }
 
 # ABSTRACT: embed arbitrary data in a file - reader class
@@ -75,7 +75,7 @@ sub _ensure_index {
             filename => $self->{filename},
             name     => 'Data::Embed index',
             length   => 0,
-            offset   => scalar(-s $self->{fh}),
+            offset   => scalar(__size($self->{fh})),
          ),
         };
       %$self = (%$self, %$index);
@@ -127,7 +127,7 @@ sub _load_index {
    # Now we established the full length of the data section, so it's
    # possible to adjust all offsets for all files (remember that the
    # files are assumed to be at the end of the embedding file)
-   my $full_length       = -s $fh;
+   my $full_length       = __size($fh);
    my $offset_correction = $full_length - $index_length - $data_length;
    for my $file (@files) {
       $file =
@@ -149,12 +149,26 @@ sub _load_index {
    };
 } ## end sub _load_index
 
+sub __size {
+   my $fh = shift;
+   my $size = -s $fh;
+   if (! defined $size) {
+      DEBUG "getting size via seek";
+      my $current = tell $fh;
+      seek $fh, 0, SEEK_END;
+      $size = tell $fh;
+      DEBUG "size: $size";
+      seek $fh, $current, SEEK_SET;
+   }
+   return $size;
+}
+
 # read the last section of the file, looking for the index
 sub _read_index {
    my $self = shift;
    my ($fh, $filename) = @{$self}{qw< fh filename >};
    DEBUG "_read_index(): fh[$fh] filename[$filename]";
-   my $full_length = -s $fh;    # length of the whole stream/file
+   my $full_length = __size($fh);    # length of the whole stream/file
 
    # look for TERMINATOR at the very end of the file
    my $terminator = TERMINATOR;
@@ -254,7 +268,7 @@ Data::Embed::Reader - embed arbitrary data in a file - reader class
 
 =head1 VERSION
 
-version 0.2_01
+version 0.2_02
 
 =head1 METHODS
 

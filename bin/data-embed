@@ -17,13 +17,12 @@ GetOptions(
    \%config,
    qw<
      usage! help! man! version!
-     data|text|d=s
-     file|filename|f=s
+     data|text|d=s@
+     filename|file|f=s@
+     name|n=s
      output|o=s
      output_from_package|output-from-package|auto-output|a!
      package|module|p|m=s
-     name|n=s
-     output|o=s
      >
 ) or pod2usage(-verbose => 99, -sections => 'USAGE');
 
@@ -64,22 +63,35 @@ sub action_add {
          -sections => 'USAGE',
       );
 
-   my $name = $cfg->{name};
-   my $input;
+   my %args = (output => $target);
+   $args{input} = $target if -e $target;
+   my $writer = writer(%args);
+
    if (exists $cfg->{data}) {
-      return embed($target, name => $name, data => $cfg->{data});
+      for my $item (@{$cfg->{data}}) {
+         my ($name, $data) = $item =~ m{\A (?: ((?:\\. | [^\\:])*) :)? (.*) \z}mxs;
+         if (defined $name) {
+            $name =~ s{\\(.)}{$1}gmxs;
+         }
+         else {
+            ($name, $data) = ('', $item);
+         }
+         $writer->add_data($name, $data);
+      }
    }
-   elsif (exists $cfg->{file}) {
-      $input = $cfg->{file};
+   if (exists $cfg->{filename}) {
+      for my $item (@{$cfg->{filename}}) {
+         $writer->add_file($item, $item);
+      }
    }
-   elsif ((! scalar @$argv) || ($argv->[0] eq '-')) {
-      return embed($target, name => $name, fh => \*STDIN);
+   if (@$argv) {
+      for my $item (@$argv) {
+         $writer->add(name => $item, input => $item);
+      }
    }
-   else {
-      $input = $argv->[0];
-   }
-   $name = $input unless defined $name;
-   return embed($target, name => $name, filename => $input);
+
+   $writer->write_index();
+   return;
 }
 
 sub action_list {
@@ -191,37 +203,105 @@ data-embed - embed/extract files to/from container files
 
 =head1 VERSION
 
-version 0.2_01
+version 0.2_02
 
 =head1 DESCRIPTION
+
+This program is a wrapper around the functionalities provided by
+L<Data::Embed>. It allows embedding data inside files in two ways:
+
+=over
+
+=item *
+
+multiple data sections in a I<container> file. To read data from that file,
+C<Data::Embed> (or C<data-embed>) will be needed
+
+=item *
+
+one single data section inside a Perl module. The Perl module contains a
+package with the code to read the section directly.
+
+=back
+
+Although similar, these two ways address different use cases. The first one
+is when you want to bring multiple sections in a file - e.g. a Perl
+script - so that you can access it later. In most cases it is redundant
+with respect to any archiving software (e.g. tar, zip, etc.) but it can
+come handy when you want to embed data within some other file.
+
+The second method is when you want to bring some data inside a
+distribution, and then you want e.g. to embed those modules via
+Mobundle or FatPack.
 
 =head1 USAGE
 
    data-embed [--usage] [--help] [--man] [--version]
 
-   data-embed
+   data-embed add <target>
+      [--data|--text|-d <data>]
+      [--file|--filename|-f <filename>]
+      [--name|-n <name>]
+      [<filename>]
+
+   data-embed list <target>
+
+   data-embed extract <target> <id>
+      [--output|-o <filename>]
+
+   data-embed modularize
+      [--data|--text|-d <data>]
+      [--file|--filename|-f <filename>]
+      [--output|-o <filename>]
+      [--output-from-package|--auto-output|-a]
+      [--package|-p|--module|-m <packagename>]
+      [<filename>]
 
 =head1 EXAMPLES
 
-   shell$ data-embed
+   # Add one section named "first part" from data on command line
+   shell$ data-embed add container.bin -n 'first part' -d "some data"
 
-=for l'autore, da riempire:
-   Qualche breve esempio con codice che mostri l'utilizzo più comune.
-   Questa sezione sarà quella probabilmente più letta, perché molti
-   utenti si annoiano a leggere tutta la documentazione, per cui
-   è meglio essere il più educativi ed esplicativi possibile.
+   # same things, with data coming from standard input
+   shell$ echo ciao | data-embed add container.bin -n second
 
-=for l'autore, da riempire:
-   Fornite una descrizione completa del modulo e delle sue caratteristiche.
-   Aiutatevi a strutturare il testo con le sottosezioni (=head2, =head3)
-   se necessario.
+   # ditto, data from a file
+   shell$ data-embed add container.bin -n third /path/to/input-file
+
+   # you can be explicit about the file name
+   shell$ data-embed add container.bin -n third -f /path/to/input-file
+
+   # List a file's contents
+   shell$ data-embed list
+
+   # Extract a file
+   shell$ data-embed extract 0
+
+   # Extract a file to a file
+   shell$ data-embed extract 0 -o /path/to/output
+
+   # Create a module with a file as contents
+   shell$ data-embed modularize -p ThePack /path/to/file -o ThePack.pm
+
+   # Read the data in the module
+   shell$ perl -I . -MThePack -e 'print ThePack::get_data()'
+
+   # Read the data in the module, through filehandle
+   shell$ perl -I . -MThePack -e '$fh=ThePack::get_fh(); print while <$fh>'
 
 =head1 OPTIONS
 
-=for l'autore, da riempire:
-   Una descrizione di tutte le opzioni possibili nella chiamata allo script
-
 =over
+
+=item --data | --text | -d data
+
+set the data that will be embedded. Works for actions
+C<add> and C<modularize>.
+
+=item --file | --filename | -f filename
+
+set the filename where the data will be taken. Works for actions
+C<add> and C<modularize>.
 
 =item --help
 
@@ -231,6 +311,25 @@ the options and some examples from the synopsis.
 =item --man
 
 print out the full documentation for the script.
+
+=item --name | -n name
+
+set the name of the section to be added. Works for action C<add>.
+
+=item --output | -o filename
+
+set the name of the output file. Works for actions
+C<extract> and C<modularize>.
+
+=item --output-from-package | --auto-output | -a
+
+set the output filename from the package name (overrides any other
+C<output> command line option). Works for action C<modularize>.
+
+=item --package | -p | --module | -m name
+
+set the name of the package for generating a module. Works for action
+C<modularize>.
 
 =item --usage
 
@@ -242,63 +341,15 @@ print the version of the script.
 
 =back
 
-=head1 DIAGNOSTICS
-
-=for l'autore, da riempire:
-   Elencate qualunque singolo errore o messaggio di avvertimento che
-   lo script può generare, anche quelli che non "accadranno mai".
-   Includete anche una spiegazione completa di ciascuno di questi
-   problemi, una o più possibili cause e qualunque rimedio
-   suggerito.
-
-=over
-
-=item C<< Error message here, perhaps with %s placeholders >>
-
-[Descrizione di un errore]
-
-=item C<< Another error message here >>
-
-[Descrizione di un errore]
-
-[E così via...]
-
-=back
-
 =head1 CONFIGURATION AND ENVIRONMENT
-
-=for l'autore, da riempire:
-   Una spiegazione completa di qualunque sistema di configurazione
-   utilizzato dallo script, inclusi i nomi e le posizioni dei file di
-   configurazione, il significato di ciascuna variabile di ambiente
-   utilizzata e proprietà che può essere impostata. Queste descrizioni
-   devono anche includere dettagli su eventuali linguaggi di configurazione
-   utilizzati.
 
 data-embed requires no configuration files or environment variables.
 
 =head1 DEPENDENCIES
 
-=for l'autore, da riempire:
-   Una lista di tutti i moduli su cui si basa questo script,
-   incluse eventuali restrizioni sulle relative versioni, ed una
-   indicazione se il modulo in questione è parte della distribuzione
-   standard di Perl, parte della distribuzione del modulo o se
-   deve essere installato separatamente.
-
-None.
+Nothing that L<Data::Embed> does not already require.
 
 =head1 BUGS AND LIMITATIONS
-
-=for l'autore, da riempire:
-   Una lista di tutti i problemi conosciuti relativi al modulo,
-   insime a qualche indicazione sul fatto che tali problemi siano
-   plausibilmente risolti in una versione successiva. Includete anche
-   una lista delle restrizioni sulle funzionalità fornite dal
-   modulo: tipi di dati che non si è in grado di gestire, problematiche
-   relative all'efficienza e le circostanze nelle quali queste possono
-   sorgere, limitazioni pratiche sugli insiemi dei dati, casi
-   particolari che non sono (ancora) gestiti, e così via.
 
 No bugs have been reported.
 
@@ -310,15 +361,11 @@ Flavio Poletti C<polettix@cpan.org>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2014, Flavio Poletti C<polettix@cpan.org>. All rights reserved.
+Copyright (c) 2014-2015 Flavio Poletti C<polettix@cpan.org>.
 
 This script is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>
 and L<perlgpl>.
-
-Questo script è software libero: potete ridistribuirlo e/o
-modificarlo negli stessi termini di Perl stesso. Vedete anche
-L<perlartistic> e L<perlgpl>.
 
 =head1 DISCLAIMER OF WARRANTY
 
@@ -342,42 +389,6 @@ RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
 FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGES.
-
-=head1 NEGAZIONE DELLA GARANZIA
-
-Poiché questo software viene dato con una licenza gratuita, non
-c'è alcuna garanzia associata ad esso, ai fini e per quanto permesso
-dalle leggi applicabili. A meno di quanto possa essere specificato
-altrove, il proprietario e detentore del copyright fornisce questo
-software "così com'è" senza garanzia di alcun tipo, sia essa espressa
-o implicita, includendo fra l'altro (senza però limitarsi a questo)
-eventuali garanzie implicite di commerciabilità e adeguatezza per
-uno scopo particolare. L'intero rischio riguardo alla qualità ed
-alle prestazioni di questo software rimane a voi. Se il software
-dovesse dimostrarsi difettoso, vi assumete tutte le responsabilità
-ed i costi per tutti i necessari servizi, riparazioni o correzioni.
-
-In nessun caso, a meno che ciò non sia richiesto dalle leggi vigenti
-o sia regolato da un accordo scritto, alcuno dei detentori del diritto
-di copyright, o qualunque altra parte che possa modificare, o redistribuire
-questo software così come consentito dalla licenza di cui sopra, potrà
-essere considerato responsabile nei vostri confronti per danni, ivi
-inclusi danni generali, speciali, incidentali o conseguenziali, derivanti
-dall'utilizzo o dall'incapacità di utilizzo di questo software. Ciò
-include, a puro titolo di esempio e senza limitarsi ad essi, la perdita
-di dati, l'alterazione involontaria o indesiderata di dati, le perdite
-sostenute da voi o da terze parti o un fallimento del software ad
-operare con un qualsivoglia altro software. Tale negazione di garanzia
-rimane in essere anche se i dententori del copyright, o qualsiasi altra
-parte, è stata avvisata della possibilità di tali danneggiamenti.
-
-Se decidete di utilizzare questo software, lo fate a vostro rischio
-e pericolo. Se pensate che i termini di questa negazione di garanzia
-non si confacciano alle vostre esigenze, o al vostro modo di
-considerare un software, o ancora al modo in cui avete sempre trattato
-software di terze parti, non usatelo. Se lo usate, accettate espressamente
-questa negazione di garanzia e la piena responsabilità per qualsiasi
-tipo di danno, di qualsiasi natura, possa derivarne.
 
 =head1 AUTHOR
 

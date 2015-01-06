@@ -20,8 +20,8 @@ my $testfile = __FILE__ . '.test1';
 {  # embed
    write_file($testfile, $prefix);
    lives_ok {
-      embed($testfile, data => $sample1, name => 'some thing');
-      embed($testfile, data => $sample2, name => 'anoth%%er');
+      embed(input => $testfile, output => $testfile, data => $sample1, name => 'some thing');
+      embed(container => $testfile, data => $sample2, name => 'anoth%%er');
    } 'two calls to embed() lived';
    my $generated = read_file($testfile);
    is $generated, $contents, 'generated file is as expected';

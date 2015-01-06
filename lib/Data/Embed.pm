@@ -1,6 +1,6 @@
 package Data::Embed;
 {
-  $Data::Embed::VERSION = '0.2_01';
+  $Data::Embed::VERSION = '0.2_02';
 }
 
 # ABSTRACT: embed arbitrary data in a file
@@ -11,12 +11,13 @@ use English qw< -no_match_vars >;
 use Exporter qw< import >;
 use Log::Log4perl::Tiny qw< :easy :dead_if_first >;
 
-our @EXPORT_OK = qw< writer reader embed embedded generate_module_from_file >;
-our @EXPORT = ();
+our @EXPORT_OK =
+  qw< writer reader embed embedded generate_module_from_file >;
+our @EXPORT      = ();
 our %EXPORT_TAGS = (
-   all => \@EXPORT_OK,
-   reading => [ qw< reader embedded > ],
-   writing => [ qw< writer embed    generate_module_from_file > ],
+   all     => \@EXPORT_OK,
+   reading => [qw< reader embedded >],
+   writing => [qw< writer embed    generate_module_from_file >],
 );
 
 
@@ -31,14 +32,22 @@ sub reader {
 }
 
 sub embed {
-   my $writer = writer(shift)
-      or LOGCROAK 'could not get the writer object';
-   return $writer->add(@_);
-}
+   my %args = (@_ && ref($_[0])) ? %{$_[0]} : @_;
+
+   my %constructor_args =
+     map { $_ => delete $args{$_} } qw< input output >;
+   $constructor_args{input} = $constructor_args{output} =
+     delete $args{container}
+     if exists $args{container};
+   my $writer = writer(%constructor_args)
+     or LOGCROAK 'could not get the writer object';
+
+   return $writer->add(%args);
+} ## end sub embed
 
 sub embedded {
    my $reader = reader(shift)
-      or LOGCROAK 'could not get the writer object';
+     or LOGCROAK 'could not get the writer object';
    return $reader->files();
 }
 
@@ -61,7 +70,7 @@ Data::Embed - embed arbitrary data in a file
 
 =head1 VERSION
 
-version 0.2_01
+version 0.2_02
 
 =head1 SYNOPSIS
 
@@ -140,20 +149,82 @@ for L<Data::Embed::Reader> and L<Data::Embed::Writer>.
 
 =head2 B<< embed >>
 
-Embed new data inside a container file. The calling syntax is
-as follows:
+   embed($hashref); # OR
+   embed(%keyvalue_pairs);
 
-   embed($container, $hashref); # OR
-   embed($container, %keyvalue_pairs);
+Embed new data inside a container file.
 
-The C<$container> parameter is the target file where the new data
-will be inserted.
-
-Additional parameters can be passed as key-value pairs either
+Parameters can be passed as key-value pairs either
 directly or through a hash reference. The following keys are
 supported:
 
 =over
+
+=item C<container>
+
+shortcut to specifying the same input and output, i.e. the value will
+be replicated both on the C<input> and C<output> keys below. Caller
+still has to ensure that the two are compatible. Provision of a
+filehandle is currently not supported.
+
+=item C<input>
+
+any previous container file to use as base for the generated container.
+If missing, no previous data will be considered (like starting from an
+empty file). Can be:
+
+=over
+
+=item *
+
+the C<-> string in a plain scalar, in which case standard input is
+considered
+
+=item *
+
+any other string in a plain scalar, considered to be a file name
+
+=item *
+
+a plain reference to a scalar, considered to hold the input data
+
+=item *
+
+something that supports the filehandle interface for reading
+
+=back
+
+=item C<output>
+
+the target container for the newly generated archive. Might be the same
+as the input or different; in the latter case, the input will be copied
+over the output, apart from the bits regarding the management of the
+inclusions. Can be:
+
+=over
+
+=item *
+
+missing/undefined or the C<-> string in a plain scalar, in which case
+standard output is used
+
+=item *
+
+any other string in a plain scalar, considered to be a file name
+
+=item *
+
+a plain reference to a scalar, considered to be the target scalar to
+hold the data
+
+=item *
+
+something that supports the filehandle interface for printing. You
+should not provide the same filehandle for both input and output,
+even if you opened it in read-write mode. This limitation might
+be removed in the future.
+
+=back
 
 =item C<name>
 
@@ -169,7 +240,7 @@ exausted starting from its current position
 
 a filename or a reference to a scalar where data will be read from
 
-=item c<data>
+=item C<data>
 
 a scalar from where data will be read. If you have a huge amount of
 data, it's better to use the C<filename> key above passing a reference
@@ -285,6 +356,13 @@ the input is taken from the scalar provided with the data key
 Input keys are C<fh>, C<filename>, C<dataref> and C<data>. In case
 multiple of them are present, they will be considered in the
 order specified.
+
+=head1 BUGS AND LIMITATIONS
+
+Report bugs either through RT or GitHub (patches welcome).
+
+Passing the same filehandle for both C<input> and C<output> in L</embed>
+is not supported. This applies to C<container> too.
 
 =head1 SEE ALSO
 

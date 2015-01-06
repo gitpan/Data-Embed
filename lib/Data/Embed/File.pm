@@ -1,6 +1,6 @@
 package Data::Embed::File;
 {
-  $Data::Embed::File::VERSION = '0.2_01';
+  $Data::Embed::File::VERSION = '0.2_02';
 }
 
 # ABSTRACT: embed arbitrary data in a file
@@ -43,10 +43,12 @@ sub contents {
    my $fh   = $self->fh();
    my $current = tell $fh;
    seek $fh, 0, SEEK_SET;
-   local $/;
-   my $retval = <$fh>;
+
+   local $/ = wantarray() ? $/ : undef;
+   my @retval = <$fh>;
    seek $fh, $current, SEEK_SET;
-   return $retval;
+   return @retval if wantarray();
+   return $retval[0];
 } ## end sub contents
 
 
@@ -66,7 +68,7 @@ Data::Embed::File - embed arbitrary data in a file
 
 =head1 VERSION
 
-version 0.2_01
+version 0.2_02
 
 =head1 DESCRIPTION
 

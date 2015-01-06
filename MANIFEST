@@ -11,9 +11,16 @@ lib/Data/Embed/OneFileAsModule.pm
 lib/Data/Embed/Reader.pm
 lib/Data/Embed/Util.pm
 lib/Data/Embed/Writer.pm
+prova.cnt
 t/00-load.t
 t/01-basic.t
 t/01-basic.t.test1
+t/10-writer-add.t
+t/11-writer-DESTROY.t
+t/20-writer-file.t
+t/21-writer-STDOUT.t
+t/22-writer-scalarref.t
+t/23-writer-filehandle.t
 t/DataEmbedTestUtil.pm
 t/pod-coverage.t
 t/pod.t

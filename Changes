@@ -1,3 +1,6 @@
+0.21      2015-01-06 19:43:19 Europe/Rome
+   - release after 64 passes on CPAN Testers (thanks!)
+
 0.2_03    2015-01-06 07:32:02 Europe/Rome
    - fixed test t/10-writer-add.t for openining a handle to a scalar
      ref in perl prior to 5.14 (no ':raw' allowed, using binmode()

@@ -1,6 +1,6 @@
 package Data::Embed::OneFileAsModule;
 {
-  $Data::Embed::OneFileAsModule::VERSION = '0.2_03';
+  $Data::Embed::OneFileAsModule::VERSION = '0.21';
 }
 
 # ABSTRACT: generate a Perl module for carrying data
@@ -179,7 +179,7 @@ Data::Embed::OneFileAsModule - generate a Perl module for carrying data
 
 =head1 VERSION
 
-version 0.2_03
+version 0.21
 
 =head1 FUNCTIONS
 
